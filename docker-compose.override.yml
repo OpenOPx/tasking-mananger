@@ -24,9 +24,9 @@ services:
       context: "."
       dockerfile: "./scripts/docker/Dockerfile.frontend"
       args:
-        - TM_APP_API_URL=http://localhost:3000/api
+        - TM_APP_API_URL=http://tmb.variamos.com/api
     volumes:
       - ".:/usr/src/app"
     labels:
-      - traefik.http.routers.frontend.rule=Host(`localhost:3000`)
+      - traefik.http.routers.frontend.rule=Host(`http://tmf.variamos.com/`)
       - traefik.http.services.frontend.loadbalancer.server.port=80

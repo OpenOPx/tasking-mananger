@@ -9,7 +9,9 @@ x-backend-config: &backend
   links:
     - postgresql
   networks:
-    - tm-web
+    kobofe_kobo-fe-network:
+      aliases:
+        - tm_backend
 
 services:
   # Main application
@@ -18,10 +20,10 @@ services:
     container_name: backend
     restart: always
     labels:
-      - traefik.http.routers.backend.rule=Host(`localhost:5000`) && PathPrefix(`/api/`)
+      - traefik.http.routers.backend.rule=Host(`http://tmb.variamos.com/`) && PathPrefix(`/api/`)
       - traefik.http.services.backend.loadbalancer.server.port=5000
     ports:
-      - "5000:80"
+      - "5000:5000"
   migration:
     <<: *backend
     container_name: migration
@@ -32,11 +34,14 @@ services:
     image: hotosm-tasking-manager:frontend
     restart: always
     networks:
-      - tm-web
+      kobofe_kobo-fe-network:
+        aliases:
+          - tm_frontend
+
     ports:
       - "3000:80"
     labels:
-      - traefik.http.routers.frontend.rule=Host(`localhost:3000`)
+      - traefik.http.routers.frontend.rule=Host(`http://tmf.variamos.com/:3000`)
       - traefik.http.services.frontend.loadbalancer.server.port=80
 
   postgresql:
@@ -45,7 +50,9 @@ services:
     restart: always
     env_file: ${ENV_FILE:-tasking-manager.env}
     networks:
-      - tm-web
+      kobofe_kobo-fe-network:
+        aliases:
+          - tm_postgresql
 
   traefik:
     image: traefik:v2.3
@@ -58,8 +65,11 @@ services:
       - --entrypoints.web.address=:80
       - --providers.docker=true
     networks:
-      - tm-web
+      kobofe_kobo-fe-network:
+        aliases:
+          - tm_traefik
 
 networks:
-  tm-web:
+  kobofe_kobo-fe-network:
     external: true
+
